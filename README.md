@@ -1,7 +1,7 @@
 # Documentation
 Self Learning Documentation
 
-# Algroithm
+# Algorithm
 
 * 724 Find Pivot Index
 
