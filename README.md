@@ -3,7 +3,7 @@ Self Learning Documentation
 
 # Algroithm
 
-* 724. Find Pivot Index
+* 724 Find Pivot Index
 
 ```
 Given an array of integers nums, write a method that returns the "pivot" index of this array.
