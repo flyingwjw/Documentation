@@ -1,0 +1,18 @@
+[2015-05-19 11:16:06] Processing File transfer configured from ship to shore....
+[2015-05-19 11:16:06] File Limit is = 2048
+[2015-05-19 11:16:06] Done processing File transfer configured from ship to shore....
+[2015-05-19 11:16:06] Connection starts now
+[2015-05-19 11:16:06] Connected Via FB
+[2015-05-19 11:16:06] Before Setting Server URL
+[2015-05-19 11:16:06] Setting Server URL is done.
+[2015-05-19 11:16:06] SHOREMAIL: Start Preparing Shore Files
+[2015-05-19 11:16:07] prepareShoreMail: The outboxDir at shore is empty.
+[2015-05-19 11:16:07] SHOREMAIL: End Preparing Shore Files
+[2015-05-19 11:16:07] Exchange File: toUpload= true
+[2015-05-19 11:16:07] Exchange File: toDownload= false
+[2015-05-19 11:16:07] Exchange File: toDelete= true
+[2015-05-19 11:16:07] Exchange File: DownStatus= Done
+[2015-05-19 11:16:07] Exchange File: emailStatus= 0
+[2015-05-19 11:16:07] LogCon: Updating status: Partial
+[2015-05-19 11:16:07] Before total_zip_size_sent= 0
+....
