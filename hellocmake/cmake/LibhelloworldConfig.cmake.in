@@ -1,0 +1,17 @@
+# - Config file for the Libhelloworld package
+# It defines the following variables
+#  LIBHELLOWORLD_INCLUDE_DIRS - include directories for FooBar
+#  LIBHELLOWORLD_LIBRARIES    - libraries to link against
+
+# Get the path of the current file.
+get_filename_component(LIBHELLOWORLD_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+# Set the include directories.
+set(LIBHELLOWORLD_INCLUDE_DIRS "@EVENT_INSTALL_INCLUDE_DIR@")
+
+# Include the project Targets file, this contains definitions for IMPORTED targets.
+include(${LIBHELLOWORLD_CMAKE_DIR}/LibhelloworldTargets.cmake)
+
+# IMPORTED targets from LibeventTargets.cmake
+set(LIBHELLOWORLD_LIBRARIES event)
+
