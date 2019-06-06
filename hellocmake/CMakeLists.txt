@@ -9,7 +9,7 @@ if(NOT CMAKE_BUILD_TYPE)
         CACHE STRING "Set build type to Debug o Release (default Release)" FORCE)
 endif()
 
-project(helloworld C)
+project(nebula C)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 
@@ -45,6 +45,9 @@ set(HELLOWORLD__ALLOWED_STAGE_NAMES
 
 option(HELLOWORLD__BUILD_SHARED_LIBRARIES
     "Define if libevent should be built with shared libraries instead of archives" ON)
+
+option(NEBULA__DISABLE_SAMPLES
+    "Disable sample files" OFF)
 
 list(FIND HELLOWORLD__ALLOWED_STAGE_NAMES
     ${HELLOWORLD_STAGE_NAME}
@@ -108,11 +111,15 @@ if (CMAKE_COMPILER_IS_GNUCC)
 endif()
 
 # Group the source files.
-set(HDR_PRIVATE
+set(HDR_PUBLIC
     include/hello.h
+	include/visibility.h
+	${CMAKE_CURRENT_BINARY_DIR}/include/nebula-config.h
+	)
 
 set(SRC_CORE
     hello.c
+	)
 
 add_definitions(-DHAVE_CONFIG_H)
 
@@ -120,6 +127,7 @@ add_definitions(-DHAVE_CONFIG_H)
 # first for some previous versions of the headers that are installed.
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/include)
 
+source_group("Headers Public"  FILES ${HDR_PUBLIC})
 source_group("Headers Private"  FILES ${HDR_PRIVATE})
 source_group("Source Core"      FILES ${SRC_CORE})
 
@@ -136,23 +144,50 @@ if (HELLOWORLD__BUILD_SHARED_LIBRARIES)
     add_compiler_flags(-xldscope=hidden)
   endif()
 
-  set(HELLOWORLD__NEED_DLLIMPORT 1)
+  set(NEBULA__NEED_DLLEXPORT 1)
 else (HELLOWORLD__BUILD_SHARED_LIBRARIES)
   set(HELLOWORLD__LIBRARY_TYPE STATIC)
 endif (HELLOWORLD__BUILD_SHARED_LIBRARIES)
+
+
+# Generate the configure headers.
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/nebula-config.h.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/include/nebula-config.h
+        NEWLINE_STYLE UNIX)
 
 #
 # Create the libraries.
 #
 
 add_library(helloworld ${HELLOWORLD__LIBRARY_TYPE}
-    ${HDR_PRIVATE}
+    ${HDR_PUBLIC}
     ${SRC_CORE})
 
 if (HELLOWORLD__BUILD_SHARED_LIBRARIES)
   set_target_properties(helloworld
         PROPERTIES SOVERSION ${HELLOWORLD_ABI_LIBVERSION})
 endif (HELLOWORLD__BUILD_SHARED_LIBRARIES)
+
+#
+# Samples.
+#
+
+if (NOT NEBULA__DISABLE_SAMPLES)
+    set(SAMPLES
+        hello-world
+        )
+
+    foreach(SAMPLE ${SAMPLES})
+        add_executable(${SAMPLE}
+                    sample/${SAMPLE}.c)
+
+        target_link_libraries(${SAMPLE}
+                    helloworld)
+
+        add_dependencies(${SAMPLE} helloworld)
+    endforeach()
+endif()
 
 #
 # Installation preparation.
@@ -189,26 +224,13 @@ set(HELLOWORLD__INCLUDE_DIRS
     "${PROJECT_SOURCE_DIR}/include"
     "${PROJECT_BINARY_DIR}/include")
 
-set(HELLOWORLD_INCLUDE_DIRS
+set(LIBHELLOWORLD_INCLUDE_DIRS
     ${HELLOWORLD__INCLUDE_DIRS}
-    CACHE PATH "Libevent include directories")
+    CACHE PATH "Libhelloworld include directories")
 
 configure_file(${PROJECT_SOURCE_DIR}/cmake/LibhelloworldConfigBuildTree.cmake.in
                 ${PROJECT_BINARY_DIR}/LibhelloworldConfig.cmake
                 @ONLY)
-
-# Generate the config file for the installation tree.
-file(RELATIVE_PATH
-    REL_INCLUDE_DIR
-    "${HELLOWORLD_INSTALL_CMAKE_DIR_FULL}"
-    "${HELLOWORLD_INSTALL_INCLUDE_DIR_FULL}") # Calculate the relative directory from the Cmake dir.
-
-# Note the EVENT_CMAKE_DIR is defined in LibeventConfig.cmake.in,
-# we escape it here so it's evaluated when it is included instead
-# so that the include dirs are givenrelative to where the
-# config file is located.
-set(EVENT__INCLUDE_DIRS
-    "\${HELLOWORLD_CMAKE_DIR_FULL}/${REL_INCLUDE_DIR}")
 
 configure_file(${PROJECT_SOURCE_DIR}/cmake/LibhelloworldConfig.cmake.in
                 ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/LibhelloworldConfig.cmake
@@ -227,7 +249,7 @@ set_target_properties(helloworld
 # Install targets.
 #
 install(TARGETS helloworld
-        EXPORT Libhelloworld
+        EXPORT LibhelloworldTargets
         RUNTIME DESTINATION "${HELLOWORLD_INSTALL_BIN_DIR}" COMPONENT bin
         LIBRARY DESTINATION "${HELLOWORLD_INSTALL_LIB_DIR}" COMPONENT lib
         ARCHIVE DESTINATION "${HELLOWORLD_INSTALL_LIB_DIR}" COMPONENT lib
@@ -248,7 +270,7 @@ install(FILES
         COMPONENT dev)
 
 # Install exports for the install-tree.
-install(EXPORT Libhelloworld
+install(EXPORT LibhelloworldTargets
         DESTINATION
             "${HELLOWORLD_INSTALL_CMAKE_DIR}"
         COMPONENT dev)
@@ -281,4 +303,6 @@ message(STATUS "CMAKE_BUILD_TYPE:         " ${CMAKE_BUILD_TYPE} )
 message(STATUS "CMAKE_C_COMPILER:         " ${CMAKE_C_COMPILER} )
 message(STATUS "CMAKE_AR:                 " ${CMAKE_AR} )
 message(STATUS "CMAKE_RANLIB:             " ${CMAKE_RANLIB} )
+message(STATUS "CMAKE_PREFIX_PATH:        " ${CMAKE_PREFIX_PATH} )
+message(STATUS "CMAKE_INSTALL_PREFIX:     " ${CMAKE_INSTALL_PREFIX} )
 message(STATUS "")
