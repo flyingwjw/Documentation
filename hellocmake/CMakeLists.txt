@@ -113,12 +113,12 @@ endif()
 # Group the source files.
 set(HDR_PUBLIC
     include/hello.h
-	include/visibility.h
+	include/nebula.h
 	${CMAKE_CURRENT_BINARY_DIR}/include/nebula-config.h
 	)
 
 set(SRC_CORE
-    hello.c
+    lib/hello.c
 	)
 
 add_definitions(-DHAVE_CONFIG_H)
@@ -163,6 +163,7 @@ configure_file(
 add_library(helloworld ${HELLOWORLD__LIBRARY_TYPE}
     ${HDR_PUBLIC}
     ${SRC_CORE})
+set_target_properties(helloworld PROPERTIES DEFINE_SYMBOL NEBULA_LIB_DLL)
 
 if (HELLOWORLD__BUILD_SHARED_LIBRARIES)
   set_target_properties(helloworld
@@ -186,6 +187,7 @@ if (NOT NEBULA__DISABLE_SAMPLES)
                     helloworld)
 
         add_dependencies(${SAMPLE} helloworld)
+		set_target_properties(${SAMPLE} PROPERTIES DEFINE_SYMBOL NEBULA_LIB_DLL)
     endforeach()
 endif()
 
